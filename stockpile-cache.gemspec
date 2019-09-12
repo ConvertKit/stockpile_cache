@@ -11,8 +11,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['ConvertKit, LLC']
   spec.email         = ['engineering@convertkit.com']
 
-  spec.summary       = 'Simple Redis based cache'
-  spec.description   = 'Cache with cache-stampede protection'
+  spec.summary       = 'Redis based cache'
+  spec.description   = 'Simple redis based cache with stampede protection'
   spec.license       = 'Apache License Version 2.0'
 
   spec.metadata['source_code_uri'] = 'https://github.com/ConvertKit/stockpile_cache'
