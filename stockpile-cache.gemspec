@@ -13,8 +13,9 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Simple Redis based cache'
   spec.description   = 'Cache with cache-stampede protection'
-  spec.homepage      = 'https://convertkit.com'
   spec.license       = 'Apache License Version 2.0'
+
+  spec.metadata['source_code_uri'] = 'https://github.com/ConvertKit/stockpile_cache'
 
   spec.files = `git ls-files | grep -Ev '^(spec)'`.split("\n")
 
