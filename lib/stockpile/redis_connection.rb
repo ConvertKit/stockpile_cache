@@ -29,13 +29,17 @@ module Stockpile
     end
 
     def connection_options
-      { url: redis_url,
-        sentinels: sentinels }
+      {
+        url: redis_url,
+        sentinels: sentinels
+      }.delete_if { |_k, v| v.nil? || v.empty? }
     end
 
     def connection_pool_options
-      { size: pool_size,
-        timeout: connection_timeout }
+      {
+        size: pool_size,
+        timeout: connection_timeout
+      }
     end
 
     def connection_timeout
