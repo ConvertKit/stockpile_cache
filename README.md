@@ -1,4 +1,4 @@
-# Stockpile [![Build Status][ci-image]][ci] [![Code Climate][codeclimate-image]][codeclimate]
+# Stockpile [![Build Status][ci-image]][ci] [![Code Climate][codeclimate-image]][codeclimate] [![Gem Version][version-image]][version]
 Stockpile is a simple cache written in Ruby backed by Redis. It has built in
 [cache-stampede](https://en.wikipedia.org/wiki/Cache_stampede) (also known as
 dog-piling) protection.
@@ -133,3 +133,5 @@ conduct](https://github.com/ConvertKit/stockpile_cache/blob/master/CODE_OF_CONDU
 [ci-image]: https://circleci.com/gh/ConvertKit/stockpile_cache.svg?style=svg
 [codeclimate]: https://codeclimate.com/github/ConvertKit/stockpile_cache/maintainability
 [codeclimate-image]: https://api.codeclimate.com/v1/badges/f9ca3b6dda3b492b125e/maintainability
+[version]: https://badge.fury.io/rb/stockpile_cache
+[version-image]: https://badge.fury.io/rb/stockpile_cache.svg
