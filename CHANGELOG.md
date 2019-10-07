@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0
+- Allowing expiration of cached value
+
 ## 1.0.1
 - Adding CHANGELOG.md
 - Removing homepage from gemspec as we don't have proper one yet

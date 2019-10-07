@@ -29,6 +29,7 @@ require 'stockpile/failed_lock_execution'
 
 require 'stockpile/cache'
 require 'stockpile/cached_value_reader'
+require 'stockpile/cached_value_expirer'
 
 require 'stockpile/executor'
 
@@ -70,6 +71,16 @@ module Stockpile
   def configure
     yield(configuration)
     nil
+  end
+
+  # Immediatelly expires a cached value for a given key.
+  #
+  # @params key [String] Key to expire
+  #
+  # @return [true, false] Returns true if value existed in cache and was
+  #   succesfully expired. Returns false if value did not exist in cache.
+  def expire_cached(key:)
+    Stockpile::CachedValueExpirer.expire_cached(key: key)
   end
 
   # Attempts to fetch a value from cache (for a given key). In case of miss

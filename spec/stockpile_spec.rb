@@ -34,6 +34,16 @@ RSpec.describe Stockpile do
     end
   end
 
+  describe '#expire_cached' do
+    it 'relays call to CachedValueExpirer' do
+      allow(Stockpile::CachedValueExpirer).to receive(:expire_cached)
+      expected_params = { key: 'foo' }
+      Stockpile.expire_cached(key: 'foo')
+
+      expect(Stockpile::CachedValueExpirer).to have_received(:expire_cached).with(expected_params)
+    end
+  end
+
   describe '#perform_cached' do
     it 'relays call to CachedValueReader' do
       allow(Stockpile::CachedValueReader).to receive(:read_or_yield)

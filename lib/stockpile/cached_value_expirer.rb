@@ -15,13 +15,14 @@
 # limitations under the License.
 
 module Stockpile
-  DEFAULT_CONNECTION_POOL = 100
-  DEFAULT_CONNECTION_TIMEOUT = 3
-  DEFAULT_LOCK_EXPIRATION = 10
-  DEFAULT_REDIS_URL = 'redis://localhost:6379/1'
-  DEFAULT_SLUMBER = 2
-  DEFAULT_TTL = 60 * 5
-  LOCK_PREFIX = 'stockpile_lock::'
-  SLUMBER_COOLDOWN = 0.05
-  VERSION = '1.1.0'
+  # == Stockpile::CachedValueExpirer
+  #
+  # Service class to wrap expiration of of cached value
+  module CachedValueExpirer
+    module_function
+
+    def expire_cached(key:)
+      Stockpile.redis { |r| r.expire(key, 0) }
+    end
+  end
 end
