@@ -30,6 +30,7 @@ RSpec.describe Stockpile do
         expect(c).to respond_to(:redis_url=)
         expect(c).to respond_to(:sentinels=)
         expect(c).to respond_to(:slumber=)
+        expect(c).to respond_to(:configuration_file=)
       end
     end
   end
@@ -37,7 +38,7 @@ RSpec.describe Stockpile do
   describe '#expire_cached' do
     it 'relays call to CachedValueExpirer' do
       allow(Stockpile::CachedValueExpirer).to receive(:expire_cached)
-      expected_params = { key: 'foo' }
+      expected_params = { db: :default, key: 'foo' }
       Stockpile.expire_cached(key: 'foo')
 
       expect(Stockpile::CachedValueExpirer).to have_received(:expire_cached).with(expected_params)
@@ -47,7 +48,7 @@ RSpec.describe Stockpile do
   describe '#perform_cached' do
     it 'relays call to CachedValueReader' do
       allow(Stockpile::CachedValueReader).to receive(:read_or_yield)
-      expected_params = { key: 'foo', ttl: 1 }
+      expected_params = { db: :default, key: 'foo', ttl: 1 }
       Stockpile.perform_cached(key: 'foo', ttl: 1)
 
       expect(Stockpile::CachedValueReader).to have_received(:read_or_yield).with(expected_params)
@@ -62,9 +63,9 @@ RSpec.describe Stockpile do
 
   describe '#redis_connection_pool' do
     it 'returns a ConnectionPool object' do
-      pool = Stockpile.redis_connection_pool
+      pool = Stockpile.redis_connections
 
-      expect(pool).to be_a(ConnectionPool)
+      expect(pool).to be(Stockpile::RedisConnections)
     end
   end
 end

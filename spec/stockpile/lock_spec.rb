@@ -25,7 +25,7 @@ RSpec.describe Stockpile::Lock do
 
   describe '.perform' do
     it 'is a shortcut for constructor with method call' do
-      lock = Stockpile::Lock.new('foo')
+      lock = Stockpile::Lock.new(:default, 'foo')
       allow(Stockpile::Lock).to receive(:new).and_return(lock)
       allow(lock).to receive(:perform_locked)
       Stockpile::Lock.perform_locked(lock_key: 'foo') {}
@@ -35,7 +35,7 @@ RSpec.describe Stockpile::Lock do
   end
 
   describe '#perform_locked' do
-    let(:lock) { Stockpile::Lock.new('foo') }
+    let(:lock) { Stockpile::Lock.new(:default, 'foo') }
 
     after(:each) do
       Stockpile.redis { |r| r.expire('foo', 0) }

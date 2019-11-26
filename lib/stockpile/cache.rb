@@ -22,21 +22,21 @@ module Stockpile
   module Cache
     module_function
 
-    def get(key:)
-      value_from_cache = Stockpile.redis { |r| r.get(key) }
+    def get(db: :default, key:)
+      value_from_cache = Stockpile.redis(db: db) { |r| r.get(key) }
       Oj.load(value_from_cache) if value_from_cache
     end
 
-    def get_deferred(key:)
-      sleep(Stockpile::SLUMBER_COOLDOWN) until Stockpile.redis { |r| r.exists(key) }
-      value_from_cache = Stockpile.redis { |r| r.get(key) }
+    def get_deferred(db: :default, key:)
+      sleep(Stockpile::SLUMBER_COOLDOWN) until Stockpile.redis(db: db) { |r| r.exists(key) }
+      value_from_cache = Stockpile.redis(db: db) { |r| r.get(key) }
       Oj.load(value_from_cache)
     end
 
-    def set(key:, payload:, ttl:)
+    def set(db: :default, key:, payload:, ttl:)
       payload = Oj.dump(payload)
-      Stockpile.redis { |r| r.set(key, payload) }
-      Stockpile.redis { |r| r.expire(key, ttl) }
+      Stockpile.redis(db: db) { |r| r.set(key, payload) }
+      Stockpile.redis(db: db) { |r| r.expire(key, ttl) }
     end
   end
 end

@@ -21,7 +21,7 @@ RSpec.describe Stockpile::Executor do
 
   describe '.perform' do
     it 'is a shortcut for constructor with method call' do
-      executor = Stockpile::Executor.new('foo', 1)
+      executor = Stockpile::Executor.new(:default, 'foo', 1)
       allow(Stockpile::Executor).to receive(:new).and_return(executor)
       allow(executor).to receive(:perform)
       Stockpile::Executor.perform(key: 'foo', ttl: 1)

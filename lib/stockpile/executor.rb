@@ -22,13 +22,14 @@ module Stockpile
   # value to appear in cache instead. Will timeout after given amount of time
   # and will execute block if no value can be read from cache.
   class Executor
-    attr_reader :key, :ttl
+    attr_reader :db, :key, :ttl
 
-    def self.perform(key:, ttl:, &block)
-      new(key, ttl).perform(&block)
+    def self.perform(db: :default, key:, ttl:, &block)
+      new(db, key, ttl).perform(&block)
     end
 
-    def initialize(key, ttl)
+    def initialize(db, key, ttl)
+      @db = db
       @key = key
       @ttl = ttl
     end
@@ -44,13 +45,14 @@ module Stockpile
     private
 
     def execution
-      @execution ||= Stockpile::Lock.perform_locked(lock_key: lock_key) do
+      @execution ||= Stockpile::Lock.perform_locked(db: db, lock_key: lock_key) do
         yield
       end
     end
 
     def cache_and_release_execution
       Stockpile::Cache.set(
+        db: db,
         key: key,
         payload: execution.result,
         ttl: ttl
@@ -66,7 +68,7 @@ module Stockpile
 
     def wait_for_cache_or_yield
       Timeout.timeout(Stockpile.configuration.slumber) do
-        Stockpile::Cache.get_deferred(key: key)
+        Stockpile::Cache.get_deferred(db: db, key: key)
       end
     rescue Timeout::Error
       yield

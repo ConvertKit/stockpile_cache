@@ -19,15 +19,16 @@ module Stockpile
   #
   # Wrapper containing result of locked execution
   class LockedExcutionResult
-    attr_reader :lock_key, :result
+    attr_reader :db, :lock_key, :result
 
-    def initialize(lock_key:, result:)
+    def initialize(db: :default, lock_key:, result:)
+      @db = db
       @lock_key = lock_key
       @result = result
     end
 
     def release_lock
-      Stockpile.redis { |r| r.expire(lock_key, 0) }
+      Stockpile.redis(db: db) { |r| r.expire(lock_key, 0) }
     end
 
     def success?

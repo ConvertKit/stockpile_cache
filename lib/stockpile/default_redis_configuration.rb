@@ -15,27 +15,32 @@
 # limitations under the License.
 
 module Stockpile
-  # == Stockpile::RedisConnection
+  # == Stockpile::DefaultRedisConfiguration
   #
-  # Wrapper around ConnectionPool and Redis to provide connectivity
-  # to Redis with desired configuration and sane connection pool
-  module RedisConnection
+  # Confiuration object for a single Redis database cache setup.
+  # Reads values out of environment, default values or uses
+  # configuration provided during runtime.
+  module DefaultRedisConfiguration
     module_function
 
-    def connection_pool
-      @connection_pool = ConnectionPool.new(connection_pool_options) do
-        Redis.new(connection_options)
-      end
+    def configuration
+      [
+        {
+          db: :default,
+          pool_configuration: pool_configuration,
+          redis_configuration: redis_configuration
+        }
+      ]
     end
 
-    def connection_options
+    def redis_configuration
       {
         url: redis_url,
         sentinels: sentinels
       }.delete_if { |_k, v| v.nil? || v.empty? }
     end
 
-    def connection_pool_options
+    def pool_configuration
       {
         size: pool_size,
         timeout: connection_timeout

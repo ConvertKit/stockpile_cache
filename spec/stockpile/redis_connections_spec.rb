@@ -14,15 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Stockpile
-  # == Stockpile::CachedValueExpirer
-  #
-  # Service class to wrap expiration of of cached value
-  module CachedValueExpirer
-    module_function
+RSpec.describe Stockpile::RedisConnections do
+  describe '#with' do
+    class Klazz
+      def self.with
+        yield
+      end
+    end
 
-    def expire_cached(db: :default, key:)
-      Stockpile.redis(db: db) { |r| r.expire(key, 0) }
+    it 'gets an instance variable and yields connection to it' do
+      allow(Klazz).to receive(:with).and_call_original
+      Stockpile::RedisConnections.instance_variable_set(:@foo, Klazz)
+      Stockpile::RedisConnections.with(db: :foo) {}
+
+      expect(Klazz).to have_received(:with)
     end
   end
 end
