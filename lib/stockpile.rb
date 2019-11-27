@@ -65,7 +65,7 @@ module Stockpile
   end
 
   # API to configure cache dynamically during runtime. Running dynamic
-  # configuration # will rebuild connection pools releasing existing
+  # configuration will rebuild connection pools releasing existing
   # connections.
   #
   # @yield [configuration] Takes in a block of code of code that is setting
