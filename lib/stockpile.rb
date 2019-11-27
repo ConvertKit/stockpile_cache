@@ -40,7 +40,7 @@ require 'stockpile/executor'
 # = Stockpile
 #
 # Simple cache with Redis as a backend and a built in cache-stampede
-# protection and multiple Redid database support. For more information on
+# protection and multiple Redis database support. For more information on
 # general usage consider consulting README.md file.
 #
 # While interacting with the cache from within your application
