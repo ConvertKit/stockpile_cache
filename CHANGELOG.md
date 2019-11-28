@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+- Adding support for multiple Redis databases/server
+
 ## 1.1.0
 - Allowing expiration of cached value
 

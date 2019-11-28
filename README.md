@@ -1,7 +1,7 @@
 # Stockpile [![Build Status][ci-image]][ci] [![Code Climate][codeclimate-image]][codeclimate] [![Gem Version][version-image]][version]
 Stockpile is a simple cache written in Ruby backed by Redis. It has built in
 [cache-stampede](https://en.wikipedia.org/wiki/Cache_stampede) (also known as
-dog-piling) protection.
+dog-piling) protection and support for multiple Redis servers.
 
 Can be used with any Ruby or Ruby on Rails project. Can be used as a replacement for
 existing Ruby on Rails cache.
@@ -71,6 +71,7 @@ Following settings are supported:
 | `STOCKPILE_REDIS_URL` | `redis_url` | URL of your Redis server that will be used for caching. Defaults to `redis://localhost:6379/1`. |
 | `STOCKPILE_REDIS_SENTINELS` | `sentinels` | (optional) Comma separated list of Sentinels IPs for Redis. Defaults to `nil`. Example value: `8.8.8.8:42,8.8.4.4:42`. |
 | `STOCKPILE_SLUMBER` | `slumber` | Timeout (in seconds) for stampede protection lock. After timeout passed in code will be executed instead of reading a value from cache. Defaults to `2`. |
+| `STOCKPILE_CONFIGURATION_FILE` | `configuration_file` | (optional) `.yml` configuration file to read connection information from. See [Multiple Database](#multiple-database). |
 
 ## Usage
 To use simply wrap your code into `perform_cached` block:
@@ -81,13 +82,72 @@ Stockpile.perform_cached(key: 'meaning_of_life', ttl: 42) do
 end
 ```
 
-`perform` method accepts 3 named arguments:
+`perform` method accepts 4 named arguments:
 
 | Argument | Meaning |
 | ------------- | ------------- |
 | `key` | Pointer in cache by which a value will be either looked up or stored in cache once code provided in block is executed. |
 | `ttl` | (optional) Time in seconds for which a cached value will be stored. Defaults to 300 seconds (5 minutes). |
+| `db` | (optional) Name of the Redis database to cache value in. Defaults to `:default` |
 | `&block` | Block of code to execute; it's return value will be stored in cache. |
+
+### Multiple Database
+Stockpile comes with a support for multiple databases. A word of caution: unless
+you have very good reason to run multiple databases within single instance of
+Redis server you probably should avoid doing so as you will not see any performance
+improvements in doing so.
+
+To allow multi-database support you have to do two things. First you have to set
+`configuration_file` setting to point at `.yml` containing your configuration.
+You can do so by either setting a `STOCKPILE_CONFIGURATION_FILE` environment
+variable or by executing a configuration block during runtime (for Rails create
+`config/initializers/stockpile.rb` with following content):
+
+```
+Stockpile.configure do |configuration|
+  configuration.configuration_file = <PATH/TO/FILE>
+end
+```
+
+Second thing to do is to create a `.yml` configuration file. It has to have at
+least one database definition. Providing `sentinels` is optional. Everything
+else is mandatory:
+
+```
+---
+master:
+  url: 'redis://redis-1-host:6379/1'
+  sentinels: '8.8.8.8:42,8.8.4.4:42'
+  pool_options:
+    size: 5
+    timeout: 5
+
+commander:
+  url: 'redis://redis-2-host:6379/1'
+  pool_options:
+    size: 5
+    timeout: 5
+```
+
+To query different databases provide a corresponding `db:` param with
+`perform_cached` method:
+
+```
+Stockpile.perform_cached(db: :master, key: 'meaning_of_life', ttl: 42) do
+  21 + 21
+end
+
+Stockpile.perform_cached(db: :commander, key: 'meaning_of_life', ttl: 21) do
+  21
+end
+```
+
+If you do not provide a `db:` param then a `:default` database will be used; if
+you do not define it in a configuration file your request will error out.
+
+Using `configuration_file` setting will make Stockpile ignore all other
+Redis connection related settings and it will read configuration from `.yml`
+file instead.
 
 ## Caveats
 There is no timeout or rescue set for code you will be running through the cache. If

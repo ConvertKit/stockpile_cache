@@ -20,19 +20,24 @@ module Stockpile
   # Holds configuration for cache with writeable attributes allowing
   # dynamic change of configuration during runtime
   class Configuration
-    attr_accessor :connection_pool, :connection_timeout, :lock_expiration,
-                  :redis_url, :sentinels, :slumber
+    attr_accessor :configuration_file, :connection_pool, :connection_timeout,
+                  :lock_expiration, :redis_url, :sentinels, :slumber
 
     def initialize
+      @configuration_file = extract_configuration_file
       @connection_pool = extract_connection_pool
       @connection_timeout = extract_connection_timeout
       @lock_expiration = extract_lock_expiration
       @redis_url = extract_redis_url
-      @sentinels = process_sentinels
+      @sentinels = extract_sentinels
       @slumber = extract_slumber
     end
 
     private
+
+    def extract_configuration_file
+      ENV.fetch('STOCKPILE_CONFIGURATION_FILE', nil)
+    end
 
     def extract_connection_pool
       ENV.fetch(
@@ -69,11 +74,10 @@ module Stockpile
       ).to_i
     end
 
-    def process_sentinels
-      ENV.fetch('STOCKPILE_REDIS_SENTINELS', '').split(',').map do |sentinel|
-        host, port = sentinel.split(':')
-        { host: host, port: port.to_i }
-      end
+    def extract_sentinels
+      Stockpile::RedisConnectionsFactory.process_sentinels(
+        sentinels: ENV.fetch('STOCKPILE_REDIS_SENTINELS', '')
+      )
     end
   end
 end

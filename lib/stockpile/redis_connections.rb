@@ -15,14 +15,17 @@
 # limitations under the License.
 
 module Stockpile
-  # == Stockpile::CachedValueExpirer
+  # == Stockpile::RedisConnections
   #
-  # Service class to wrap expiration of of cached value
-  module CachedValueExpirer
+  # Wrapper around pools of Redis connections to allow multiple
+  # Redis database support
+  module RedisConnections
     module_function
 
-    def expire_cached(db: :default, key:)
-      Stockpile.redis(db: db) { |r| r.expire(key, 0) }
+    def with(db:)
+      instance_variable_get("@#{db}".to_sym).with do |connection|
+        yield connection
+      end
     end
   end
 end

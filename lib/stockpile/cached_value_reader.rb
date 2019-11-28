@@ -22,11 +22,11 @@ module Stockpile
   module CachedValueReader
     module_function
 
-    def read_or_yield(key:, ttl:, &block)
-      if (result = Stockpile::Cache.get(key: key))
+    def read_or_yield(db: :default, key:, ttl:, &block)
+      if (result = Stockpile::Cache.get(db: db, key: key))
         result
       else
-        Stockpile::Executor.perform(key: key, ttl: ttl, &block)
+        Stockpile::Executor.perform(db: db, key: key, ttl: ttl, &block)
       end
     end
   end

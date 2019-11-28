@@ -18,10 +18,14 @@ require 'connection_pool'
 require 'oj'
 require 'redis'
 require 'timeout'
+require 'yaml'
 
 require 'stockpile/constants'
 require 'stockpile/configuration'
-require 'stockpile/redis_connection'
+require 'stockpile/redis_connections_factory'
+require 'stockpile/default_redis_configuration'
+require 'stockpile/yaml_redis_configuration'
+require 'stockpile/redis_connections'
 
 require 'stockpile/lock'
 require 'stockpile/locked_execution_result'
@@ -36,16 +40,17 @@ require 'stockpile/executor'
 # = Stockpile
 #
 # Simple cache with Redis as a backend and a built in cache-stampede
-# protection. For more information on general usage consider consulting
-# README.md file.
+# protection and multiple Redis database support. For more information on
+# general usage consider consulting README.md file.
 #
 # While interacting with the cache from within your application
 # avoid re-using anything after :: notation as it is part of internal API
 # and is subject to an un-announced breaking change.
 #
-# Stockpile provides 5 methods as part of it's public API:
+# Stockpile provides 6 methods as part of it's public API:
 # * configuration
 # * configure
+# * expire_cached
 # * perform_cached
 # * redis
 # * redis_connection_pool
@@ -59,7 +64,9 @@ module Stockpile
     @configuration ||= Configuration.new
   end
 
-  # API to configure cache dynamically during runtime.
+  # API to configure cache dynamically during runtime. Running dynamic
+  # configuration will rebuild connection pools releasing existing
+  # connections.
   #
   # @yield [configuration] Takes in a block of code of code that is setting
   #   or changing configuration values
@@ -70,17 +77,21 @@ module Stockpile
   # @return [void]
   def configure
     yield(configuration)
+    @redis_connections = Stockpile::RedisConnectionsFactory.build_connections
+
     nil
   end
 
   # Immediatelly expires a cached value for a given key.
   #
   # @params key [String] Key to expire
+  # @param db [Symbol] (optional) Which Redis database to expire data from.
+  #   Defaults to `:default`
   #
   # @return [true, false] Returns true if value existed in cache and was
   #   succesfully expired. Returns false if value did not exist in cache.
-  def expire_cached(key:)
-    Stockpile::CachedValueExpirer.expire_cached(key: key)
+  def expire_cached(db: :default, key:)
+    Stockpile::CachedValueExpirer.expire_cached(db: db, key: key)
   end
 
   # Attempts to fetch a value from cache (for a given key). In case of miss
@@ -89,6 +100,8 @@ module Stockpile
   #
   # @param key [String] Key to use for a value lookup from cache or key
   #   to store value at once it is computed
+  # @param db [Symbol] (optional) Which Redis database to cache data in.
+  #   Defaults to `:default`
   # @param ttl [Integer] (optional) Time in seconds to expire cache after.
   #   Defaults to Stockpile::DEFAULT_TTL
   #
@@ -98,8 +111,13 @@ module Stockpile
   #   Stockpile.perform_cached(key: 'meaning_of_life', ttl: 42) { 21 * 2 }
   #
   # @return Returns a result of block execution
-  def perform_cached(key:, ttl: Stockpile::DEFAULT_TTL, &block)
-    Stockpile::CachedValueReader.read_or_yield(key: key, ttl: ttl, &block)
+  def perform_cached(db: :default, key:, ttl: Stockpile::DEFAULT_TTL, &block)
+    Stockpile::CachedValueReader.read_or_yield(
+      db: db,
+      key: key,
+      ttl: ttl,
+      &block
+    )
   end
 
   # API to communicate with Redis database backing cache up.
@@ -110,8 +128,8 @@ module Stockpile
   #   Store.redis { |r| r.set('meaning_of_life', 42) }
   #
   # @return Returns a result of interaction with Redis
-  def redis
-    redis_connection_pool.with do |connection|
+  def redis(db: :default)
+    redis_connections.with(db: db) do |connection|
       yield connection
     end
   end
@@ -119,8 +137,9 @@ module Stockpile
   # Accessor to connection pool. Defined on top level so it can be memoized
   # on the topmost level
   #
-  # @return [ConnectionPool] ConnectionPool object from connection_pool gem
-  def redis_connection_pool
-    @redis_connection_pool ||= Stockpile::RedisConnection.connection_pool
+  # @return [Stockpile::RedisConnections] RedisConnections object holding all defined
+  #   connection pools
+  def redis_connections
+    @redis_connections ||= Stockpile::RedisConnectionsFactory.build_connections
   end
 end

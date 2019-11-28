@@ -23,13 +23,14 @@ module Stockpile
   # Stockpile::LockedExcutionResult will hold Stockpile::FailedLockExecution
   # as a result of execution
   class Lock
-    attr_reader :lock_key
+    attr_reader :db, :lock_key
 
-    def self.perform_locked(lock_key:, &block)
-      new(lock_key).perform_locked(&block)
+    def self.perform_locked(db: :default, lock_key:, &block)
+      new(db, lock_key).perform_locked(&block)
     end
 
-    def initialize(lock_key)
+    def initialize(db, lock_key)
+      @db = db
       @lock_key = lock_key
     end
 
@@ -44,7 +45,7 @@ module Stockpile
     private
 
     def failed_execution
-      Stockpile::LockedExcutionResult.new(result: failed_lock, lock_key: lock_key)
+      Stockpile::LockedExcutionResult.new(db: db, result: failed_lock, lock_key: lock_key)
     end
 
     def failed_lock
@@ -52,11 +53,11 @@ module Stockpile
     end
 
     def lock
-      Stockpile.redis { |r| r.set(lock_key, 1, nx: true, ex: Stockpile.configuration.lock_expiration) }
+      Stockpile.redis(db: db) { |r| r.set(lock_key, 1, nx: true, ex: Stockpile.configuration.lock_expiration) }
     end
 
     def successful_execution
-      Stockpile::LockedExcutionResult.new(result: yield, lock_key: lock_key)
+      Stockpile::LockedExcutionResult.new(db: db, result: yield, lock_key: lock_key)
     end
   end
 end
