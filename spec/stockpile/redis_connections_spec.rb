@@ -15,6 +15,14 @@
 # limitations under the License.
 
 RSpec.describe Stockpile::RedisConnections do
+  describe '#compression?' do
+    it 'gets value of instance variable' do
+      Stockpile::RedisConnections.instance_variable_set(:@foo_compression, 42)
+
+      expect(Stockpile::RedisConnections.compression?(db: 'foo')).to eq(42)
+    end
+  end
+
   describe '#with' do
     class Klazz
       def self.with

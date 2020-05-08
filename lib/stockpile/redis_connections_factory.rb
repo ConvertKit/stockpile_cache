@@ -29,10 +29,9 @@ module Stockpile
           Redis.new(database[:redis_configuration])
         end
 
-        RedisConnections.instance_variable_set(
-          "@#{database[:db]}".to_sym,
-          pool
-        )
+        RedisConnections.instance_variable_set("@#{database[:db]}".to_sym, pool)
+
+        RedisConnections.instance_variable_set("@#{database[:db]}_compression".to_sym, database[:compression])
       end
 
       RedisConnections

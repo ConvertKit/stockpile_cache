@@ -27,9 +27,16 @@ module Stockpile
         {
           db: database,
           pool_configuration: extract_pool(settings: settings),
-          redis_configuration: extract_redis(settings: settings)
+          redis_configuration: extract_redis(settings: settings),
+          compression: extract_compression(settings: settings)
         }
       end
+    end
+
+    def extract_compression(settings:)
+      return true if settings['compression'].eql?(true)
+
+      false
     end
 
     def extract_redis(settings:)

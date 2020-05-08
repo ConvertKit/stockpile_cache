@@ -149,6 +149,44 @@ Using `configuration_file` setting will make Stockpile ignore all other
 Redis connection related settings and it will read configuration from `.yml`
 file instead.
 
+### Compression of Cached Content
+Stockpile optionally supports compression of cached content; you will not see
+much benefit from compressing small strings but once you start caching bigger
+payloads like fragments of HTML you could see some improvements by using
+compression. To use compression you will have to use configuration file set by
+`STOCKPILE_CONFIGURATION_FILE`.
+
+To enable compression you have to do two things. First you have to set
+`configuration_file` setting to point at `.yml` containing your configuration.
+You can do so by either setting a `STOCKPILE_CONFIGURATION_FILE` environment
+variable or by executing a configuration block during runtime (for Rails create
+`config/initializers/stockpile.rb` with following content):
+
+```
+Stockpile.configure do |configuration|
+  configuration.configuration_file = <PATH/TO/FILE>
+end
+```
+
+Second thing to do is to create a `.yml` configuration file. It has to have at
+least one database definition. Providing `sentinels` and `compression` is
+optional. Everything else is mandatory:
+
+
+```
+---
+master:
+  url: 'redis://redis-1-host:6379/1'
+  sentinels: '8.8.8.8:42,8.8.4.4:42'
+  compression: true
+  pool_options:
+    size: 5
+    timeout: 5
+```
+
+From that point everything that will be cached in `master` database will be
+compressed.
+
 ## Caveats
 There is no timeout or rescue set for code you will be running through the cache. If
 you need to do either you have to handle it outside of Stockpile.

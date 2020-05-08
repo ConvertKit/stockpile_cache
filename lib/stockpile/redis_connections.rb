@@ -22,6 +22,10 @@ module Stockpile
   module RedisConnections
     module_function
 
+    def compression?(db:)
+      instance_variable_get("@#{db}_compression".to_sym)
+    end
+
     def with(db:)
       instance_variable_get("@#{db}".to_sym).with do |connection|
         yield connection

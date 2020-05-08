@@ -20,6 +20,7 @@ RSpec.describe Stockpile::YamlRedisConfiguration do
       master: {
         'url' => 'foo',
         'sentinels' => 'localhost:42',
+        'compression' => true,
         'pool_options' => {
           'size' => 5,
           'timeout' => 5
@@ -47,12 +48,15 @@ RSpec.describe Stockpile::YamlRedisConfiguration do
       expect(config).to be_an(Array)
       expect(config.size).to eq(2)
       expect(config[0]).to be_a(Hash)
-      expect(config[0].keys).to match_array(%i[db pool_configuration redis_configuration])
+      expect(config[0].keys).to match_array(%i[db pool_configuration redis_configuration compression])
     end
 
     it 'parses a redis connection (with sentinels)' do
       config = Stockpile::YamlRedisConfiguration.configuration
-      first_redis_config = { url: 'foo', sentinels: [{ host: 'localhost', port: 42 }] }
+      first_redis_config = {
+        url: 'foo',
+        sentinels: [{ host: 'localhost', port: 42 }]
+      }
       second_redis_config = { url: 'bar' }
 
       expect(config[0][:redis_configuration]).to eq(first_redis_config)
@@ -66,6 +70,13 @@ RSpec.describe Stockpile::YamlRedisConfiguration do
 
       expect(config[0][:pool_configuration]).to eq(first_pool_config)
       expect(config[1][:pool_configuration]).to eq(second_pool_config)
+    end
+
+    it 'parses compression' do
+      config = Stockpile::YamlRedisConfiguration.configuration
+
+      expect(config[0][:compression]).to eq(true)
+      expect(config[1][:compression]).to eq(false)
     end
   end
 end

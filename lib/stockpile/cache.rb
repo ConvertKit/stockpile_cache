@@ -22,21 +22,32 @@ module Stockpile
   module Cache
     module_function
 
-    def get(db: :default, key:)
+    def get(db: :default, key:, compress: false)
       value_from_cache = Stockpile.redis(db: db) { |r| r.get(key) }
-      Oj.load(value_from_cache) if value_from_cache
+
+      return unless value_from_cache
+
+      if compress && value_from_cache
+        Oj.load(Zlib::Inflate.inflate(Base64.decode64(value_from_cache)))
+      else
+        Oj.load(value_from_cache)
+      end
     end
 
-    def get_deferred(db: :default, key:)
+    def get_deferred(db: :default, key:, compress: false)
       sleep(Stockpile::SLUMBER_COOLDOWN) until Stockpile.redis(db: db) { |r| r.exists(key) }
-      value_from_cache = Stockpile.redis(db: db) { |r| r.get(key) }
-      Oj.load(value_from_cache)
+
+      get(db: db, key: key, compress: compress)
     end
 
-    def set(db: :default, key:, payload:, ttl:)
-      payload = Oj.dump(payload)
-      Stockpile.redis(db: db) { |r| r.set(key, payload) }
-      Stockpile.redis(db: db) { |r| r.expire(key, ttl) }
+    def set(db: :default, key:, payload:, ttl:, compress: false)
+      payload = if compress
+                  Base64.encode64(Zlib::Deflate.deflate(Oj.dump(payload)))
+                else
+                  Oj.dump(payload)
+                end
+
+      Stockpile.redis(db: db) { |r| r.setex(key, ttl, payload) }
     end
   end
 end
