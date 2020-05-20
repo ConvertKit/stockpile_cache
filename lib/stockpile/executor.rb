@@ -44,6 +44,10 @@ module Stockpile
 
     private
 
+    def compress?
+      RedisConnections.compression?(db: db)
+    end
+
     def execution
       @execution ||= Stockpile::Lock.perform_locked(db: db, lock_key: lock_key) do
         yield
@@ -55,7 +59,8 @@ module Stockpile
         db: db,
         key: key,
         payload: execution.result,
-        ttl: ttl
+        ttl: ttl,
+        compress: compress?
       )
 
       execution.release_lock
@@ -68,7 +73,7 @@ module Stockpile
 
     def wait_for_cache_or_yield
       Timeout.timeout(Stockpile.configuration.slumber) do
-        Stockpile::Cache.get_deferred(db: db, key: key)
+        Stockpile::Cache.get_deferred(db: db, key: key, compress: compress?)
       end
     rescue Timeout::Error
       yield

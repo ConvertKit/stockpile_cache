@@ -33,6 +33,14 @@ RSpec.describe Stockpile::Cache do
 
       expect(Stockpile::Cache.get(key: 'foo')).to eq(object)
     end
+
+    it 'properly compresses and base64 encodes object if compression is true' do
+      string = 'What is love?'
+      payload = Base64.encode64(Zlib::Deflate.deflate(Oj.dump(string)))
+      Stockpile.redis { |r| r.set('foo', payload) }
+
+      expect(Stockpile::Cache.get(key: 'foo', compress: true)).to eq(string)
+    end
   end
 
   describe '#get_deferred' do
@@ -63,6 +71,18 @@ RSpec.describe Stockpile::Cache do
       Stockpile::Cache.set(object_payload)
 
       expect(Stockpile.redis { |r| r.get('foo') }).to eq('{":a":1}')
+    end
+
+    it 'compresses and base64 encodes object if compression is true' do
+      payload = { key: 'foo', payload: 42, compress: true, ttl: 60 }
+      Stockpile::Cache.set(payload)
+      expected = Base64.encode64(Zlib::Deflate.deflate(Oj.dump(42)))
+
+      # Base64.encode64(Zlib::Deflate.deflate(Oj.dump(42))) => eJwzMQIAAJwAZw==\n
+      # Inserting raw value in here instead of computing it in the test on purpose
+      # so we can set expectations around what should be returned and not what current
+      # code returns
+      expect(Stockpile.redis { |r| r.get('foo') }).to eq(expected)
     end
   end
 end

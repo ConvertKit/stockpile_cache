@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0
+- Allowing optional compression of cached content
+
 ## 1.2.0
 - Adding support for multiple Redis databases/server
 

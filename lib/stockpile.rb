@@ -14,11 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'base64'
 require 'connection_pool'
 require 'oj'
 require 'redis'
 require 'timeout'
 require 'yaml'
+require 'zlib'
 
 require 'stockpile/constants'
 require 'stockpile/configuration'
