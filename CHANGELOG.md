@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1
+- Parsing ERB in YAML configs
+- Fill in missing README about cache expiration
+
 ## 1.3.0
 - Allowing optional compression of cached content
 
