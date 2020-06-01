@@ -91,6 +91,12 @@ end
 | `db` | (optional) Name of the Redis database to cache value in. Defaults to `:default` |
 | `&block` | Block of code to execute; it's return value will be stored in cache. |
 
+To expire your cache immediately run:
+
+```
+Stockpile.expire_cached(key: 'meaning_of_life')
+```
+
 ### Multiple Database
 Stockpile comes with a support for multiple databases. A word of caution: unless
 you have very good reason to run multiple databases within single instance of
