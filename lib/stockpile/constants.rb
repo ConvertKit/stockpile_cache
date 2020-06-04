@@ -23,5 +23,5 @@ module Stockpile
   DEFAULT_TTL = 60 * 5
   LOCK_PREFIX = 'stockpile_lock::'
   SLUMBER_COOLDOWN = 0.05
-  VERSION = '1.3.1'
+  VERSION = '1.3.2'
 end

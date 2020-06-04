@@ -23,7 +23,7 @@ module Stockpile
     module_function
 
     def read_or_yield(db: :default, key:, ttl:, &block)
-      if (result = Stockpile::Cache.get(db: db, key: key))
+      if (result = Stockpile::Cache.get(db: db, key: key, compress: RedisConnections.compression?(db: db)))
         result
       else
         Stockpile::Executor.perform(db: db, key: key, ttl: ttl, &block)

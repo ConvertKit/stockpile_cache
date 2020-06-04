@@ -30,7 +30,6 @@ module Stockpile
         end
 
         RedisConnections.instance_variable_set("@#{database[:db]}".to_sym, pool)
-
         RedisConnections.instance_variable_set("@#{database[:db]}_compression".to_sym, database[:compression])
       end
 

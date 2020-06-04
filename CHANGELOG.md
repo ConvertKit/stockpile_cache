@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.2
+- Fixing bug where cached content was not read
+
 ## 1.3.1
 - Parsing ERB in YAML configs
 - Fill in missing README about cache expiration
