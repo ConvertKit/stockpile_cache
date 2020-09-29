@@ -15,10 +15,10 @@
 # limitations under the License.
 
 module Stockpile
-  # == Stockpile::LockedExcutionResult
+  # == Stockpile::LockedExecutionResult
   #
   # Wrapper containing result of locked execution
-  class LockedExcutionResult
+  class LockedExecutionResult
     attr_reader :db, :lock_key, :result
 
     def initialize(db: :default, lock_key:, result:)
