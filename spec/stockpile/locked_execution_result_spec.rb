@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-RSpec.describe Stockpile::LockedExcutionResult do
+RSpec.describe Stockpile::LockedExecutionResult do
   after(:each) do
     Stockpile.redis { |r| r.expire('foo', 0) }
   end
@@ -22,7 +22,7 @@ RSpec.describe Stockpile::LockedExcutionResult do
   describe '#release_lock' do
     it 'expires lock at provided key' do
       Stockpile.redis { |r| r.set('foo', 1) }
-      result = Stockpile::LockedExcutionResult.new(lock_key: 'foo', result: '')
+      result = Stockpile::LockedExecutionResult.new(lock_key: 'foo', result: '')
       result.release_lock
 
       expect(Stockpile.redis { |r| r.get('foo') }).to be_nil
@@ -31,14 +31,14 @@ RSpec.describe Stockpile::LockedExcutionResult do
 
   describe '#success?' do
     it 'returns true unless result is a FailedLock' do
-      result = Stockpile::LockedExcutionResult.new(lock_key: '', result: 'foo')
+      result = Stockpile::LockedExecutionResult.new(lock_key: '', result: 'foo')
 
       expect(result.success?).to eq(true)
     end
 
     it 'returns false if result is a FailedLock' do
       lock = Stockpile::FailedLockExecution.new
-      result = Stockpile::LockedExcutionResult.new(lock_key: '', result: lock)
+      result = Stockpile::LockedExecutionResult.new(lock_key: '', result: lock)
 
       expect(result.success?).to eq(false)
     end

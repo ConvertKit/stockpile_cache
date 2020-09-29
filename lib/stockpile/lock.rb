@@ -18,9 +18,9 @@ module Stockpile
   # == Stockpile::Lock
   #
   # Attempts to set up exclusive lock to execute a block of code. Returns
-  # Stockpile::LockedExcutionResult holding result of execution. If lock
+  # Stockpile::LockedExecutionResult holding result of execution. If lock
   # can not be established (someone else is executing the code) then
-  # Stockpile::LockedExcutionResult will hold Stockpile::FailedLockExecution
+  # Stockpile::LockedExecutionResult will hold Stockpile::FailedLockExecution
   # as a result of execution
   class Lock
     attr_reader :db, :lock_key
@@ -45,7 +45,7 @@ module Stockpile
     private
 
     def failed_execution
-      Stockpile::LockedExcutionResult.new(db: db, result: failed_lock, lock_key: lock_key)
+      Stockpile::LockedExecutionResult.new(db: db, result: failed_lock, lock_key: lock_key)
     end
 
     def failed_lock
@@ -57,7 +57,7 @@ module Stockpile
     end
 
     def successful_execution
-      Stockpile::LockedExcutionResult.new(db: db, result: yield, lock_key: lock_key)
+      Stockpile::LockedExecutionResult.new(db: db, result: yield, lock_key: lock_key)
     end
   end
 end

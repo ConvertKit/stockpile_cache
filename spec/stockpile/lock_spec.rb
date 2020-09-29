@@ -44,14 +44,14 @@ RSpec.describe Stockpile::Lock do
     it 'returns object containing execution result' do
       execution = lock.perform_locked { 'bar' }
 
-      expect(execution).to be_a(Stockpile::LockedExcutionResult)
+      expect(execution).to be_a(Stockpile::LockedExecutionResult)
       expect(execution.result).to eq('bar')
     end
 
     it 'returns object containing lock key' do
       execution = lock.perform_locked { 'bar' }
 
-      expect(execution).to be_a(Stockpile::LockedExcutionResult)
+      expect(execution).to be_a(Stockpile::LockedExecutionResult)
       expect(execution.lock_key).to eq('foo')
     end
 
