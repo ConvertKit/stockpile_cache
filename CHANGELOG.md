@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.0
+- Bump redis-rb dependency to >= 4.2.0
+
 ## 1.3.2
 - Fixing bug where cached content was not read
 
