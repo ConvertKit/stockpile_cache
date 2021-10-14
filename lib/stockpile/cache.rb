@@ -35,7 +35,7 @@ module Stockpile
     end
 
     def get_deferred(db: :default, key:, compress: false)
-      sleep(Stockpile::SLUMBER_COOLDOWN) until Stockpile.redis(db: db) { |r| r.exists(key) }
+      sleep(Stockpile::SLUMBER_COOLDOWN) until Stockpile.redis(db: db) { |r| r.exists?(key) }
 
       get(db: db, key: key, compress: compress)
     end

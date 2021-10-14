@@ -25,5 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'connection_pool'
   spec.add_dependency 'oj'
   spec.add_dependency 'rake'
-  spec.add_dependency 'redis'
+  spec.add_dependency 'redis', '>= 4.2.0'
 end
