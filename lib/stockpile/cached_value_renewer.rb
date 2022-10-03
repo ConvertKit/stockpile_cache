@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright 2019 ConvertKit, LLC
+# Copyright 2022 ConvertKit, LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
 # limitations under the License.
 
 module Stockpile
-  DEFAULT_CONNECTION_POOL = 100
-  DEFAULT_CONNECTION_TIMEOUT = 3
-  DEFAULT_LOCK_EXPIRATION = 10
-  DEFAULT_REDIS_URL = 'redis://localhost:6379/1'
-  DEFAULT_SLUMBER = 2
-  DEFAULT_TTL = 60 * 5
-  LOCK_PREFIX = 'stockpile_lock::'
-  SLUMBER_COOLDOWN = 0.05
-  VERSION = '1.5.0'
+  # == Stockpile::CachedValueRenewer
+  #
+  # Service class to wrap renewing TTL of cached values
+  module CachedValueRenewer
+    module_function
+
+    def renew_cached(key:, db: :default, ttl: Stockpile::DEFAULT_TTL)
+      Stockpile.redis(db: db) { |r| r.expire(key, ttl) }
+    end
+  end
 end

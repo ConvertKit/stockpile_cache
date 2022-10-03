@@ -36,6 +36,7 @@ require 'stockpile/failed_lock_execution'
 require 'stockpile/cache'
 require 'stockpile/cached_value_reader'
 require 'stockpile/cached_value_expirer'
+require 'stockpile/cached_value_renewer'
 
 require 'stockpile/executor'
 
@@ -120,6 +121,25 @@ module Stockpile
       ttl: ttl,
       &block
     )
+  end
+
+  # Attempt to reset the TTL for a value cached under the given key.
+  #
+  # @param key [String] Key to renew cache TTL on
+  # @param db [Symbol] (optional) Which Redis database to cache data in.
+  #   Defaults to `:default`
+  # @param ttl [Integer] (optional) Time in seconds to expire cache after.
+  #   Defaults to Stockpile::DEFAULT_TTL
+  #
+  # @yield [block] A block of code to be executed in case of cache miss
+  #
+  # @example Renew cache operation
+  #   Stockpile.renew_cache(key: 'meaning_of_life', ttl: 42)
+  #
+  # @return [true] if the key existed (and was successfully renewed)
+  # @return [false] if the key did not exist
+  def renew_cache(key:, db: :default, ttl: Stockpile::DEFAULT_TTL)
+    Stockpile::CachedValueRenewer.renew(key: key, db: db, ttl: ttl)
   end
 
   # API to communicate with Redis database backing cache up.
