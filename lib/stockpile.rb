@@ -138,8 +138,8 @@ module Stockpile
   #
   # @return [true] if the key existed (and was successfully renewed)
   # @return [false] if the key did not exist
-  def renew_cache(key:, db: :default, ttl: Stockpile::DEFAULT_TTL)
-    Stockpile::CachedValueRenewer.renew(key: key, db: db, ttl: ttl)
+  def renew_cached(key:, db: :default, ttl: Stockpile::DEFAULT_TTL)
+    Stockpile::CachedValueRenewer.renew_cached(key: key, db: db, ttl: ttl)
   end
 
   # API to communicate with Redis database backing cache up.

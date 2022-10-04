@@ -55,6 +55,16 @@ RSpec.describe Stockpile do
     end
   end
 
+  describe '#renew_cached' do
+    it 'relays call to CachedValueRenewer' do
+      allow(Stockpile::CachedValueRenewer).to receive(:renew_cached)
+      expected_params = { db: :default, key: 'foo', ttl: 1 }
+      Stockpile.renew_cached(key: 'foo', ttl: 1)
+
+      expect(Stockpile::CachedValueRenewer).to have_received(:renew_cached).with(expected_params)
+    end
+  end
+
   describe '#redis' do
     it 'yields control' do
       expect { |b| Stockpile.redis(&b) }.to yield_control
