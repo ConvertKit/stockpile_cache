@@ -26,6 +26,10 @@ module Stockpile
       instance_variable_get("@#{db}_compression".to_sym)
     end
 
+    def include?(db:)
+      instance_variable_defined?("@#{db}".to_sym)
+    end
+
     def with(db:)
       instance_variable_get("@#{db}".to_sym).with do |connection|
         yield connection

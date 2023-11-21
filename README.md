@@ -155,6 +155,48 @@ Using `configuration_file` setting will make Stockpile ignore all other
 Redis connection related settings and it will read configuration from `.yml`
 file instead.
 
+## Mirroring a Database
+Stockpile optionally supports mirroring database writes across two databases.
+To use mirroring you will have to use configuration file set by
+`STOCKPILE_CONFIGURATION_FILE`.
+
+To enable mirroring you have to do two things. First you have to set
+`configuration_file` setting to point at `.yml` containing your configuration.
+You can do so by either setting a `STOCKPILE_CONFIGURATION_FILE` environment
+variable or by executing a configuration block during runtime (for Rails create
+`config/initializers/stockpile.rb` with following content):
+
+```
+Stockpile.configure do |configuration|
+  configuration.configuration_file = <PATH/TO/FILE>
+end
+```
+
+Second thing to do is to create a `.yml` configuration file. It has to have at
+least two database definitions for mirroring. Providing `sentinels` is
+optional. Everything else is mandatory:
+
+
+```
+---
+commander:
+  url: 'redis://redis-2-host:6379/0'
+  sentinels: '8.8.8.8:42,8.8.4.4:42'
+  pool_options:
+    size: 5
+    timeout: 5
+commander_2x:
+  url: 'redis://redis-3-host:6379/0'
+  sentinels: '9.9.9.9:42,9.9.4.4:42'
+  pool_options:
+    size: 5
+    timeout: 5
+```
+
+From that point everything that would be written to `commander` is now also
+being written to `commander_2x`.
+
+
 ### Compression of Cached Content
 Stockpile optionally supports compression of cached content; you will not see
 much benefit from compressing small strings but once you start caching bigger
