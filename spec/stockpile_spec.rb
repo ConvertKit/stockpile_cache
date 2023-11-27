@@ -60,9 +60,9 @@ RSpec.describe Stockpile do
       expect { |b| Stockpile.redis(&b) }.to yield_control
     end
 
-    it 'yields control twice for mirrorable commands when a _2x db exists' do      
+    it 'yields control twice for mirrorable commands when a _2x db exists' do
       Stockpile::RedisConnections.instance_variable_set(:@default_2x, ConnectionPool.new { Object.new })
-      
+
       expect { |b| Stockpile.redis(mirrorable: true, &b) }.to yield_control.twice
 
       Stockpile::RedisConnections.remove_instance_variable(:@default_2x)
@@ -71,10 +71,10 @@ RSpec.describe Stockpile do
     it 'yields control once for mirrorable commands when a _2x db does not exist' do
       expect { |b| Stockpile.redis(mirrorable: true, &b) }.to yield_control.once
     end
-    
-    it 'yields control once for non-mirrorable commands when a _2x db exists' do      
+
+    it 'yields control once for non-mirrorable commands when a _2x db exists' do
       Stockpile::RedisConnections.instance_variable_set(:@default_2x, ConnectionPool.new { Object.new })
-      
+
       expect { |b| Stockpile.redis(&b) }.to yield_control.once
 
       Stockpile::RedisConnections.remove_instance_variable(:@default_2x)

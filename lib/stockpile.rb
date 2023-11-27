@@ -142,7 +142,7 @@ module Stockpile
         yield connection
       end
     end
-    
+
     redis_connections.with(db: db) do |connection|
       yield connection
     end
