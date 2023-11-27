@@ -47,7 +47,7 @@ module Stockpile
                   Oj.dump(payload)
                 end
 
-      Stockpile.redis(db: db) { |r| r.setex(key, ttl, payload) }
+      Stockpile.redis(db: db, mirrorable: true) { |r| r.setex(key, ttl, payload) }
     end
   end
 end

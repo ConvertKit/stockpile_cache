@@ -23,6 +23,18 @@ RSpec.describe Stockpile::RedisConnections do
     end
   end
 
+  describe '#include?' do
+    it 'returns true if the instance variable has been set' do
+      Stockpile::RedisConnections.instance_variable_set(:@foo, Object.new)
+
+      expect(Stockpile::RedisConnections.include?(db: 'foo')).to eq(true)
+    end
+
+    it 'returns false if the instance variable has not been set' do
+      expect(Stockpile::RedisConnections.include?(db: 'bar')).to eq(false)
+    end
+  end
+
   describe '#with' do
     class Klazz
       def self.with

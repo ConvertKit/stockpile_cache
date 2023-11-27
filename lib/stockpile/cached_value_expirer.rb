@@ -22,7 +22,7 @@ module Stockpile
     module_function
 
     def expire_cached(db: :default, key:)
-      Stockpile.redis(db: db) { |r| r.expire(key, 0) }
+      Stockpile.redis(db: db, mirrorable: true) { |r| r.expire(key, 0) }
     end
   end
 end

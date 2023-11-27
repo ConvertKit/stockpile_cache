@@ -28,7 +28,7 @@ module Stockpile
     end
 
     def release_lock
-      Stockpile.redis(db: db) { |r| r.expire(lock_key, 0) }
+      Stockpile.redis(db: db, mirrorable: true) { |r| r.expire(lock_key, 0) }
     end
 
     def success?

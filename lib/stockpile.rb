@@ -124,13 +124,25 @@ module Stockpile
 
   # API to communicate with Redis database backing cache up.
   #
+  # @param db [Symbol] (optional) Which Redis database to execute on.
+  #   Defaults to `:default`
+  # @param mirrorable [true, false] (optional) Check for a second Redis
+  #   database to execute on by appending `_2x` to the db option.
+  #   Defaults to `false`
+  #
   # @yield [redis]
   #
   # @example Store a value in Redis at given key
   #   Store.redis { |r| r.set('meaning_of_life', 42) }
   #
   # @return Returns a result of interaction with Redis
-  def redis(db: :default)
+  def redis(db: :default, mirrorable: false)
+    if mirrorable && redis_connections.include?(db: "#{db}_2x")
+      redis_connections.with(db: "#{db}_2x") do |connection|
+        yield connection
+      end
+    end
+
     redis_connections.with(db: db) do |connection|
       yield connection
     end

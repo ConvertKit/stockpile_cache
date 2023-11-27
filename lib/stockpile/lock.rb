@@ -53,7 +53,9 @@ module Stockpile
     end
 
     def lock
-      Stockpile.redis(db: db) { |r| r.set(lock_key, 1, nx: true, ex: Stockpile.configuration.lock_expiration) }
+      Stockpile.redis(db: db, mirrorable: true) do |redis|
+        redis.set(lock_key, 1, nx: true, ex: Stockpile.configuration.lock_expiration)
+      end
     end
 
     def successful_execution
